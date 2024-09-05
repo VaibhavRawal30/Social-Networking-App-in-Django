@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block title %}Comment Section{% endblock title %}
+
+{% block content %}
+
+<!-- Comments section -->
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <h4 class="card-title mb-0" align = "center">Comments</h4>
+    </div>
+    <div class="card-body">
+        <!-- List of comments -->
+        {% for comment in comments %}
+            <div class="media mb-4 p-3 border rounded bg-light">
+                {% comment %} <img src="https://via.placeholder.com/50" alt="User avatar" class="mr-3 rounded-circle"> {% endcomment %}
+                <div class="media-body">
+                    <h5 class="mt-0 text-secondary">{{ comment.user.username|title }}'s Comment</h5>
+                    <p class="mb-1" style="color:black">{{ comment.comment_text }}</p>
+                    <p class="text-muted small" style="color:black"><b>Commented on: {{ comment.created_at|date:"F j, Y, g:i a" }}</b></p>
+
+                    <!-- Delete option for comment owner -->
+                    {% if comment.user == request.user %}
+                        <a href="{% url 'delete_comment' comment.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted">No comments yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Comment form -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Add a Comment</h5>
+        <form method="POST" action="{% url 'add_comment' tweet.id %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" name="comment_text" class="form-control" placeholder="Write your comment here" required>
+            </div>
+            <button type="submit" class="btn btn-outline-primary mt-2">Submit</button>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

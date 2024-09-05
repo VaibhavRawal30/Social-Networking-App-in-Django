@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+
+{% block title %}Tweet List{% endblock title %}
+
+{% block content %}
+
+<h1 class="text-center mt-4">Hi {{ user.username|title }}! Welcome to Django Project</h1>
+
+<a class="btn btn-primary mb-4" href="{% url 'tweet_create' %}">Create a Tweet</a>
+
+<div class="container row gap-3">
+
+    {% for tweet in tweets %}
+    <div class="card" style="width: 18rem;">
+        <img src="{{ tweet.photo.url }}" class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title" style="font-size: 35px">{{ tweet.user.username|title }}</h5>
+            <p class="card-text"><b>{{ tweet.text|capfirst }}</b></p>
+
+            <!-- Show the first comment if available -->
+            {% if tweet.comments.count > 0 %}
+                <p><b>{{ tweet.comments.first.user.username|title }}'s comment:</b> {{ tweet.comments.first.comment_text }} - {{ tweet.comments.first.created_at }}</p>
+                <!-- Button to view all comments -->
+                <a href="{% url 'tweet_detail' tweet.id %}" class="btn btn-outline-secondary">View all comments</a>
+            {% else %}
+                <p>No comments yet</p>
+            {% endif %}
+
+            <!-- Only show edit/delete buttons if the logged-in user is the owner of the tweet -->
+            {% if tweet.user == user %}
+                <a href="{% url 'tweet_edit' tweet.id %}" class="btn btn-primary">Edit</a>
+                <a href="{% url 'tweet_delete' tweet.id %}" class="btn btn-danger">Delete</a>
+            {% endif %}
+
+            <!-- Comment form -->
+            <form method="POST" action="{% url 'add_comment' tweet.id %}">
+                {% csrf_token %}
+                <label for="comments" class="mt-4">Add Comment:</label>
+                <input type="text" name="comment_text" class="form-control mt-2" placeholder="Write your comment here" required>
+                <button class="btn btn-outline-info mt-2" type="submit">Comment</button>
+            </form>
+
+            <!-- Like/Unlike button -->
+            <div>
+                {% if request.user.is_authenticated %}
+                    {% if tweet.user_liked %}
+                        <a href="{% url 'like_tweet' tweet.id %}" class="btn btn-danger mt-4">Unlike</a>
+                    {% else %}
+                        <a href="{% url 'like_tweet' tweet.id %}" class="btn btn-primary mt-4">Like</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary">Login to Like</a>
+                {% endif %}
+                <p>{{ tweet.likes.count }} Likes</p>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% endblock content %}
+
+
+
+
+{% comment %} {% extends "layout.html" %}
+
+{% block title%}Tweet List{% endblock title%}
+
+{% block content %}
+
+<h1 class = "text-center mt-4">Welcome to Django Project</h1>
+
+<a class = "btn btn-primary mb-4" href = "{% url "tweet_create" %}">Create a Tweet</a>
+
+<div class = "container row gap-3"> 
+
+    {% for tweet in tweets %}
+    <div class="card" style="width: 18rem;">
+        <img src="{{tweet.photo.url}}" class="card-img-top" alt="...">
+        <div class="card-body">
+          <h5 class="card-title" style="font-size:35px">{{ tweet.user.username|title }}</h5>
+          <p class="card-text"><b>{{tweet.text|capfirst }}</b></p>
+          {% if tweet.user == user %}
+          <a href="{% url "tweet_edit" tweet.id%}" class="btn btn-primary">Edit</a>
+          <a href="{% url "tweet_delete" tweet.id%}" class="btn btn-danger">Delete</a>
+          {% endif %}
+          <form>
+            <label for="comments" class="mt-4">Add Comment : </label>
+            <input type="text">
+            <button class = "btn btn-outline-info mt-4" type="submit">Comment</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+
+</div>
+
+{% endblock content %} {% endcomment %}
+
